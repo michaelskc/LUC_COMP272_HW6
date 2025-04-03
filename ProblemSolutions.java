@@ -1,7 +1,7 @@
 
 /******************************************************************
  *
- *   YOUR NAME / SECTION NUMBER
+ *   Michael Simmons / COMP272-400C
  *
  *   This java file contains the problem solutions for the methods lastBoulder,
  *   showDuplicates, and pair methods. You should utilize the Java Collection
@@ -9,6 +9,7 @@
  *
  ********************************************************************/
 
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.PriorityQueue;
 
@@ -63,13 +64,31 @@ public class ProblemSolutions {
      * returning the 0 if queue is empty else return pq.peek().
      */
 
-  public static int lastBoulder(int[] boulders) {
-
-      //
-      // ADD YOUR CODE HERE - DO NOT FORGET TO ADD YOUR NAME / SECTION # ABOVE
-      //
-      return -1;
-  }
+    public static int lastBoulder(int[] boulders) {
+        // Initialize a priority queue (in reverse order) so max element is at the top
+        PriorityQueue<Integer> pq = new PriorityQueue<>(Collections.reverseOrder());
+        // For each boulder in the input array:
+        for (int b : boulders) {
+            // Add the boulder to the max heap
+            pq.offer(b);
+        }
+        // While there's more than 1 boulder left:
+        while (pq.size() > 1) {
+            int y = pq.poll(); // Heaviest
+            int x = pq.poll(); // Second heaviest
+            // If they aren't equal, add the difference back to the heap
+            if (y != x) {
+                pq.offer(y - x);
+            }
+        }
+        // If the heap is empty, return 0; otherwise, return the last boulder
+        if (pq.isEmpty()) {
+            return 0;
+        } else {
+            // Return the last boulder using pq.peek()
+            return pq.peek();
+        }
+    }
 
 
     /**
@@ -91,11 +110,29 @@ public class ProblemSolutions {
 
     public static ArrayList<String> showDuplicates(ArrayList<String> input) {
 
-        //
-        //  YOUR CODE GOES HERE
-        //
-        return new ArrayList<>();  // Make sure result is sorted in ascending order
 
+        // Initialize a HashMap to store each time a String is in the input list
+        HashMap<String, Integer> duplicates = new HashMap<>();
+        // Initialize a result ArrayList to return the result
+        ArrayList<String> result = new ArrayList<>();
+
+        // For each input string:
+        for (String s : input) {
+            // Add to the hashmap (or increment the value if key already exists)
+            // I don't think I need to increment since we only care if it's >1, but will leave it in
+            duplicates.put(s, duplicates.getOrDefault(s, 0) + 1);
+        }
+        // For each entry in the hashmap storing duplicates
+        for (Map.Entry<String, Integer> entry : duplicates.entrySet()) {
+            // If a duplicate is found:
+            if (entry.getValue() > 1) {
+                // Add the key to the result list
+                result.add(entry.getKey());
+            }
+        }
+        // Sort the result list
+        Collections.sort(result);
+        return result;
     }
 
 
@@ -130,10 +167,45 @@ public class ProblemSolutions {
      */
 
     public static ArrayList<String> pair(int[] input, int k) {
-
-        //
-        //  YOUR CODE GOES HERE
-        //
-        return new ArrayList<>();  // Make sure returned lists is sorted as indicated above
+        // Initialize a result ArrayList to return the result
+        ArrayList<String> result = new ArrayList<>();
+        // Check that the input list is valid and has enough values to create a pair
+        if (input == null || input.length < 2) {
+            return result; // Will just return an empty array
+        }
+        // Sort a copy of the input array.
+        int[] arr = Arrays.copyOf(input, input.length);
+        // Sort the array
+        Arrays.sort(arr);
+        // Create 2 pointers to search from front and back where they meet in the middle
+        int left = 0;
+        int right = arr.length - 1;
+        // While they haven't met in the middle:
+        while (left < right) {
+            if (arr[left] + arr[right] == k) {
+                // If the sum is equal to k, add the pair to the result in the format in the instructions
+                result.add("(" + arr[left] + ", " + arr[right] + ")");
+                // Store these values to skip duplicates, and move both pointers
+                int leftVal = arr[left];
+                int rightVal = arr[right];
+                // Skip duplicate values for the left pointer.
+                while (left < right && arr[left] == leftVal) {
+                    left++;
+                }
+                // Skip duplicate values for the right pointer.
+                while (left < right && arr[right] == rightVal) {
+                    right--;
+                }
+            }
+            // If the sum is less than k, then the left pointer should be moved since the list is already sorted
+            else if (arr[left] + arr[right] < k) {
+                left++;
+            } else {
+                // Otherwise, move the right pointer
+                right--;
+            }
+        }
+        // The result is already in ascending order by virtue of the two-pointer approach.
+        return result;
     }
 }
